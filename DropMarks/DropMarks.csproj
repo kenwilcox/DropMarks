@@ -47,10 +47,14 @@
   <ItemGroup>
     <Compile Include="Classes\DropMarkCompare.cs" />
     <Compile Include="Classes\DropMarks.cs" />
-    <Compile Include="Classes\DataMarkColumns.cs" />
+    <Compile Include="Classes\DropMarkColumns.cs" />
+    <Compile Include="Classes\SearchTextBox.Designer.cs">
+      <DependentUpon>SearchTextBox.cs</DependentUpon>
+    </Compile>
     <Compile Include="Extensions\DateTimeEx.cs" />
     <Compile Include="Classes\DMTags.cs" />
     <Compile Include="Classes\DropMark.cs" />
+    <Compile Include="Extensions\GridFilterEx.cs" />
     <Compile Include="frmJSON.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -74,6 +78,9 @@
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Classes\SortableBindingList.cs" />
+    <Compile Include="Classes\SearchTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <EmbeddedResource Include="frmJSON.resx">
       <DependentUpon>frmJSON.cs</DependentUpon>
     </EmbeddedResource>

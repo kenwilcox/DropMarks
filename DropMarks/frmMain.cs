@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using System.IO;
+using DMClasses;
 
 namespace DropMarks
 {
@@ -30,17 +31,6 @@ namespace DropMarks
     {
       get
       {
-        // Need to compare this to windows version - NOT a fontname...
-        /*
-         Windows XP 5.1
-         Windows XP64 5.2
-         Windows Vista 6.0
-         Windows 7 6.1
- 
-         Windows 2003 5.2
-         Windows 2008 6.0
-        */
-        //return (SystemFonts.MessageBoxFont.Name == "Segoe UI") ? DataGridViewHeaderBorderStyle.None : DataGridViewHeaderBorderStyle.Raised;
         return (Environment.OSVersion.Version.Major > 5) ?
           DataGridViewHeaderBorderStyle.None :
           DataGridViewHeaderBorderStyle.Raised;
@@ -49,8 +39,6 @@ namespace DropMarks
 
     private void frmMain_Load(object sender, EventArgs e)
     {
-      //grid.ColumnHeadersBorderStyle = ProperColumnHeadersBorderStyle;
-
       _compare = new Size(250, 250);
 
       pnlDrop.Visible = false;
@@ -74,7 +62,13 @@ namespace DropMarks
 
       grid.DataSource = _dm;
       // Format the Columns
-      DataMarkColumns.SetColumnInfo(grid);
+      DropMarkColumns.SetColumnInfo(grid);
+
+      textBox1.AddMenuItem("Contains", true);
+      textBox1.AddMenuItem("Starts With");
+      textBox1.AddMenuItem("Equals");
+
+      m_DelegateOpenFile = new DelegateOpenFile(this.OpenFile);
     }
 
     private void frmMain_ResizeEnd(object sender, EventArgs e)
@@ -110,34 +104,13 @@ namespace DropMarks
     private void grid_DoubleClick(object sender, EventArgs e)
     {
       // This works
-      //DropMark dm = _dm[grid.CurrentRow.Index];
-      //MessageBox.Show(dm.Title);
+      DropMark dm = _dm[grid.CurrentRow.Index];
+      MessageBox.Show(dm.Title);
       //_dm.Add(new DropMark("Can We Add Something", "http://www.microsoft.com"));
 
       // This is easy...
       //grid.Rows[0].Visible = !grid.Rows[0].Visible;
       //_bs.Filter = "Title = 'Google' or Title = 'Bing'";
-    }
-
-    private void button1_Click(object sender, EventArgs e)
-    {
-      //_bs.Filter = "Title = 'Google' OR Title = 'Bing'";
-      //int i = 0;
-      foreach (DataGridViewRow row in grid.Rows)
-      {
-        //MessageBox.Show(row.Cells["Title"].Value.ToString());
-        if (row.Cells["Title"].Value.ToString().Contains("Google"))
-        {
-          row.Visible = false;
-        }
-        /*
-        if (row["Title"].ToString().Contains("Google"))
-        {
-          grid.Rows[i].Visible = false;
-        }
-        i++;
-        */
-      }
     }
 
     private void grid_DragLeave(object sender, EventArgs e)
@@ -158,6 +131,7 @@ namespace DropMarks
     private void grid_MouseDown(object sender, MouseEventArgs e)
     {
       // This kills the sorting...
+
       //string file = @"C:\Temp\temp.url";
       //DataObject dataObj = new DataObject(DataFormats.FileDrop, file);
       //DragDropEffects dropEffect = grid.DoDragDrop(dataObj, DragDropEffects.All);
@@ -174,6 +148,82 @@ namespace DropMarks
       //}
 
     }
+
+    private void textBox1_TextChanged(object sender, EventArgs e)
+    {
+      // Filter the list based on what they typed
+      grid.FilterBy(((SearchTextBox)sender).Text, false);
+    }
+
+    private void textBox1_ClearClicked(object sender, EventArgs e, string searchText)
+    {
+      // Clear the filter
+      grid.FilterClear();
+    }
+
+    private void frmMain_DragEnter(object sender, DragEventArgs e)
+    {
+      //if (e.Data.GetDataPresent(DataFormats.FileDrop))
+        e.Effect = DragDropEffects.Copy;
+      //else
+      //  e.Effect = DragDropEffects.None;
+    }
+
+    private delegate void DelegateOpenFile(String s);
+    private DelegateOpenFile m_DelegateOpenFile;
+
+    private void OpenFile(string sFile)
+    {
+      MessageBox.Show(sFile);
+    }
+
+    //http://www.codeproject.com/Articles/3598/Drag-and-Drop-files-from-Windows-Explorer-to-Windo
+
+    private void frmMain_DragDrop(object sender, DragEventArgs e)
+    {
+      Array a = (Array)e.Data.GetData(DataFormats.FileDrop);
+      if (a != null)
+      {
+        // Extract string from first array element
+        // (ignore all files except first if number of files are dropped).
+        string s = a.GetValue(0).ToString();
+
+        // Call OpenFile asynchronously.
+        // Explorer instance from which file is dropped is not responding
+        // all the time when DragDrop handler is active, so we need to return
+        // immidiately (especially if OpenFile shows MessageBox).
+
+        this.BeginInvoke(m_DelegateOpenFile, new Object[] { s });
+
+        this.Activate();        // in the case Explorer overlaps this form
+      }
+      else
+      {
+
+        //a = (Array)e.Data.GetFormats(true);
+        //MessageBox.Show(String.Join(" - ", (string[])a));
+        StreamReader reader = new StreamReader((Stream)e.Data.GetData("UniformResourceLocator"));
+        OpenFile(reader.ReadToEnd());
+      }
+    }
+
+    private void textBox1_MenuItemClicked(object sender, MenuClickedArgs mca)
+    {
+      //if (mca.Text == "Contains") grid.SetFilterMode(FilterMode.Contains);
+      //if (mca.Text == "Starts With") grid.SetFilterMode(FilterMode.StartsWith);
+
+      // Better for localizations
+      if (mca.Index == 0) grid.SetFilterMode(FilterMode.Contains);
+      if (mca.Index == 1) grid.SetFilterMode(FilterMode.StartsWith);
+      if (mca.Index == 2) grid.SetFilterMode(FilterMode.Equals);
+    }
+
+    //private void button1_Click(object sender, EventArgs e)
+    //{
+    //  //DropMark dm = new DropMark("Stack Overflow", "http://stackoverflow.com");
+    //  //dm.Comment = "Handy Dandy Website!";
+    //  //_dm.Add(dm);
+    //}
 
   }
 }

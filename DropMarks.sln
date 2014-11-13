@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DropMarks", "DropMarks\DropMarks.csproj", "{C0B8E774-914D-49A0-92C7-4F6E346DACD0}"
 EndProject
 Global

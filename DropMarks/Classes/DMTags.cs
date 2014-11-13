@@ -78,6 +78,7 @@ namespace DropMarks
         serializer.Serialize(writer, _items);
       }
       */
+
       // Just so Drop doesn't go haywire only save if the
       // current list is different from the original one
       if (!_orgItems.SequenceEqual(_items))

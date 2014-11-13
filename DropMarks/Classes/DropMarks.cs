@@ -23,13 +23,28 @@ namespace DropMarks
       }
       return ret;
     }
-    
+
+    public bool URLExists(string url)
+    {
+      bool ret = false;
+      foreach (DropMark dm in this)
+      {
+        if (dm.Url == url)
+        {
+          ret = true;
+          break;
+        }
+      }
+      return ret;
+    }
+
     public new void Add(DropMark item)
     {
       // Compare the Uuid's with ones we already have
       // If there is one that's the same DON'T add another one      
       if (!UuidExists(item.Uuid))
-        base.Add(item);
+        if (!URLExists(item.Url))
+          base.Add(item);
     }
 
     public Boolean Load()
